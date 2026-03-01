@@ -1,3 +1,2 @@
-# SPA Redirect: Ensure assets are served, otherwise fallback to index.html
+# SPA Rule: Redirect all requests to index.html unless the file exists
 /* /index.html 200
-/index.html /index.html 200
