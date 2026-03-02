@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
     <div class="login-container">
       <div class="login-card">
         <div class="card-glow"></div>
-        <span class="login-icon">🚀</span>
+        <span class="login-icon">🗺️</span>
         <h1>Job Ready Developer</h1>
         <p>Faça login para acompanhar seu progresso no mapa de conhecimentos e conquistar sua vaga no mercado.</p>
 

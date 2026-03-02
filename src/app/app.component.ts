@@ -12,7 +12,7 @@ import { CompetencyService } from './services/competency.service';
   template: `
     <nav class="navbar">
       <a routerLink="/" class="brand">
-        <span class="brand-icon">🚀</span>
+        <span class="brand-icon">🗺️</span>
         <span class="brand-name">Job Ready Developer</span>
       </a>
 

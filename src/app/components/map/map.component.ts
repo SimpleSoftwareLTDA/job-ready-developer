@@ -25,7 +25,7 @@ import { Competency, Resource } from '../../models/competency.model';
           <p>Cada círculo é uma área de conhecimento. Círculos maiores contêm os menores — o conhecimento cresce de dentro para fora. Clique em qualquer círculo para explorar.</p>
           @if (!auth.isLoggedIn()) {
             <a routerLink="/login" class="cta-btn">
-              🚀 Fazer Login para Acompanhar Progresso
+              🗺️ Fazer Login para Acompanhar Progresso
             </a>
           } @else {
             <a routerLink="/dashboard" class="cta-btn secondary">

@@ -36,7 +36,7 @@ export const DEFAULT_COMPETENCY_MAP: Competency = {
   name: 'Job Ready Developer',
   description: 'O universo completo de conhecimentos para se tornar um desenvolvedor backend pronto para o mercado',
   color: '#0f172a',
-  icon: '🚀',
+  icon: '🗺️',
   resources: [],
   children: [
     {
@@ -64,7 +64,7 @@ export const DEFAULT_COMPETENCY_MAP: Competency = {
       children: [
         { id: 'tcp-ip', name: 'Protocolos', description: 'TCP/IP, DNS, Infra', color: '#065f46', icon: '📡', value: 3, resources: [] },
         { id: 'http-rest', name: 'HTTP & REST', description: 'Verbos, Status Codes, JSON payloads', color: '#047857', icon: '🔗', value: 4, requiresIds: ['tcp-ip'], resources: [] },
-        { id: 'api-tools', name: 'API Client', description: 'Insomnia, Postman', color: '#059669', icon: '🚀', value: 2, requiresIds: ['http-rest'], resources: [] }
+        { id: 'api-tools', name: 'API Client', description: 'Insomnia, Postman', color: '#059669', icon: '🗺️', value: 2, requiresIds: ['http-rest'], resources: [] }
       ]
     },
     {
@@ -192,7 +192,7 @@ export const DEFAULT_COMPETENCY_MAP: Competency = {
       children: [
         { id: 'aws-cloud', name: 'AWS & GCP', description: 'Infra principal', color: '#1e40af', icon: '🟠', value: 3, resources: [] },
         { id: 'k8s', name: 'Kubernetes', description: 'Orquestração complexa', color: '#1d4ed8', icon: '☸️', value: 2, requiresIds: ['docker'], resources: [] },
-        { id: 'hosting-automation', name: 'Vercel & N8N', description: 'Hospedagem e Automação', color: '#2563eb', icon: '🚀', value: 2, requiresIds: ['version-control'], resources: [] }
+        { id: 'hosting-automation', name: 'Vercel & N8N', description: 'Hospedagem e Automação', color: '#2563eb', icon: '🗺️', value: 2, requiresIds: ['version-control'], resources: [] }
       ]
     },
     {
