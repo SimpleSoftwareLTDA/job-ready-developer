@@ -2,28 +2,29 @@
    JOB READY DEVELOPER — Design System
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Cores base — Dark Theme */
-  --bg: #080c14;
-  --nav-bg: rgba(8, 12, 20, 0.85);
-  --panel-bg: #0d1526;
-  --card-bg: #111d30;
+  /* Cores base — Alinhado com eu.robsoncassiano.software */
+  --bg: #0f172a;
+  --nav-bg: rgba(15, 23, 42, 0.85);
+  --panel-bg: #1e293b;
+  --card-bg: #1e293b;
   --border: rgba(255, 255, 255, 0.08);
 
   /* Texto */
-  --text-primary: #f0f4fc;
-  --text-secondary: #8fa0be;
-  --text-muted: #4a5a7a;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
-  /* Acento */
-  --accent: #6366f1;
+  /* Acento — Lime */
+  --accent: #84cc16;
+  --accent-hover: #a3e635;
   --accent-gold: #fbbf24;
   --danger: #ef4444;
 
-  /* Gradiente principal */
-  --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  /* Gradiente — Slate + Lime */
+  --gradient: linear-gradient(135deg, #84cc16 0%, #10b981 100%);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,15 +34,15 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
 
-  /* Textura sutil */
+  /* Textura — Robson's Vibe */
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.06), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(6, 182, 212, 0.04), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(132, 204, 22, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(132, 204, 22, 0.05), transparent);
 }
 
 /* Scrollbar personalizada */

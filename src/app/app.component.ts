@@ -18,6 +18,7 @@ import { CompetencyService } from './services/competency.service';
 
       <div class="nav-links">
         <a routerLink="/" class="nav-link">Mapa</a>
+        <a routerLink="/sobre" class="nav-link">Sobre</a>
         @if (auth.isLoggedIn()) {
           <a routerLink="/dashboard" class="nav-link">Meu Progresso</a>
           @if (auth.isAdmin()) {

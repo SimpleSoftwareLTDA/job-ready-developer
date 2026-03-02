@@ -8,6 +8,11 @@ export const routes: Routes = [
     title: 'Job Ready Developer — Mapa de Conhecimento'
   },
   {
+    path: 'mapa/:id',
+    loadComponent: () => import('./components/map/map.component').then(m => m.MapComponent),
+    title: 'Job Ready Developer — Mapa de Conhecimento'
+  },
+  {
     path: 'login',
     loadComponent: () => import('./components/auth/login.component').then(m => m.LoginComponent),
     title: 'Login — Job Ready Developer'
@@ -23,6 +28,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/admin/admin.component').then(m => m.AdminComponent),
     canActivate: [authGuard, adminGuard],
     title: 'Admin — Job Ready Developer'
+  },
+  {
+    path: 'sobre',
+    loadComponent: () => import('./components/about/about.component').then(m => m.AboutComponent),
+    title: 'Sobre o Autor — Job Ready Developer'
   },
   { path: '**', redirectTo: '' }
 ];

@@ -3,7 +3,8 @@ import {
   inject, signal, computed, HostListener, ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import * as d3 from 'd3';
 import { Subscription, combineLatest } from 'rxjs';
 import { CompetencyService } from '../../services/competency.service';
@@ -21,8 +22,8 @@ import { Competency, Resource } from '../../models/competency.model';
       <header class="hero">
         <div class="hero-content">
           <div class="munger-badge">💡 Círculos de Competência — Charlie Munger</div>
-          <h1>Seu Mapa para o Mercado de Trabalho</h1>
-          <p>Cada círculo é uma área de conhecimento. Círculos maiores contêm os menores — o conhecimento cresce de dentro para fora. Clique em qualquer círculo para explorar.</p>
+          <h1>Job Ready Developer: O Mapa de Competências para Desenvolvedores Backend</h1>
+          <p>Cada círculo é uma área de conhecimento. Círculos maiores contêm os menores — o conhecimento cresce de dentro para fora. Explore o guia definitivo para sua carreira.</p>
           @if (!auth.isLoggedIn()) {
             <a routerLink="/login" class="cta-btn">
               🗺️ Fazer Login para Acompanhar Progresso
@@ -92,6 +93,42 @@ import { Competency, Resource } from '../../models/competency.model';
           }
         </div>
       }
+      <!-- FAQ Semântico para AEO -->
+      <section class="faq-section">
+        <div class="faq-container">
+          <h2>Perguntas Frequentes (FAQ)</h2>
+          
+          <details class="faq-item">
+            <summary>O que um desenvolvedor backend precisa saber em 2026?</summary>
+            <div class="faq-answer">
+              <p>Em 2026, o foco mudou de apenas codificar para resolver problemas complexos com IA, nuvem e performance. É essencial dominar:</p>
+              <ul>
+                <li><strong>Fundamentos:</strong> Algoritmos, Estruturas de Dados e Redes.</li>
+                <li><strong>Ecosistema Java/Spring:</strong> Ainda o líder para sistemas robustos.</li>
+                <li><strong>Nuvem & Contêineres:</strong> Docker, Kubernetes e Cloudflare.</li>
+                <li><strong>IA Aplicada:</strong> Como integrar LLMs e automação no fluxo de trabalho.</li>
+              </ul>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Como usar o conceito de Círculos de Competência na carreira?</summary>
+            <div class="faq-answer">
+              <p>O conceito, popularizado por Charlie Munger, sugere que você deve focar no que realmente entende ("dentro do círculo") e expandir gradualmente. Neste mapa, começamos pelo núcleo (Fundamentos) e expandimos para ferramentas e especializações. O segredo é não pular etapas: consolide o círculo interno antes de avançar para o próximo.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>Este roadmap é focado em qual stack?</summary>
+            <div class="faq-answer">
+              <p>Embora os fundamentos sejam universais, o mapa tem um foco prático no ecossistema <strong>Java e Spring Boot</strong>, por ser a stack com maior volume de vagas e salários estáveis no mercado enterprise.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- JSON-LD Structured Data -->
+      <script type="application/ld+json" [innerHTML]="jsonLdSafeSchema()"></script>
     </div>
   `,
   styles: [`
@@ -119,7 +156,7 @@ import { Competency, Resource } from '../../models/competency.model';
     }
 
     h1 {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: clamp(1.8rem, 4vw, 2.8rem);
       font-weight: 800;
       color: var(--text-primary);
@@ -136,15 +173,15 @@ import { Competency, Resource } from '../../models/competency.model';
 
     .cta-btn {
       display: inline-block;
-      background: var(--gradient);
-      color: white;
+      background: var(--accent);
+      color: var(--bg);
       padding: 0.75rem 2rem;
       border-radius: 10px;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.95rem;
       transition: all 0.2s;
-      &:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4); }
+      &:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(132, 204, 22, 0.4); }
       &.secondary { background: transparent; border: 2px solid var(--accent); color: var(--accent); box-shadow: none; }
     }
 
@@ -310,6 +347,64 @@ import { Competency, Resource } from '../../models/competency.model';
       font-weight: 600;
       text-align: center;
     }
+
+    /* FAQ Styles */
+    .faq-section {
+      padding: 4rem 2rem;
+      background: var(--nav-bg);
+      border-top: 1px solid var(--border);
+    }
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .faq-container h2 {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 2rem;
+    }
+    .faq-item {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .faq-item[open] {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+    }
+    .faq-item summary {
+      padding: 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-item summary::after {
+      content: '＋';
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+    .faq-item[open] summary::after {
+      content: '－';
+    }
+    .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .faq-answer ul {
+      margin-top: 0.5rem;
+      padding-left: 1.25rem;
+    }
+    .faq-answer li {
+      margin-bottom: 0.25rem;
+    }
   `]
 })
 export class MapComponent implements OnInit, OnDestroy {
@@ -317,11 +412,14 @@ export class MapComponent implements OnInit, OnDestroy {
 
   competencyService = inject(CompetencyService);
   auth = inject(AuthService);
+  private route = inject(ActivatedRoute);
 
   selected = signal<Competency | null>(null);
 
   private progress = signal<Set<string>>(new Set());
   private sub = new Subscription();
+
+  private sanitizer = inject(DomSanitizer);
 
   progressPct = computed(() =>
     this.competencyService.getCompletionPercentage(
@@ -330,14 +428,41 @@ export class MapComponent implements OnInit, OnDestroy {
     )
   );
 
+  jsonLdSafeSchema = computed(() => {
+    const map = this.competencyService['mapSubject'].value;
+    const flat = this.competencyService.flattenCompetencies(map).filter(c => c.id !== 'root');
+
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Job Ready Developer Roadmap",
+      "description": "Um mapa completo de competências para desenvolvedores backend.",
+      "provider": {
+        "@type": "Person",
+        "name": "Robson Cassiano",
+        "url": "https://robsoncassiano.software"
+      },
+      "hasPart": flat.map(c => ({
+        "@type": "EducationalOccupationalCredential",
+        "name": c.name,
+        "description": c.description,
+        "credentialCategory": "Competency"
+      }))
+    };
+
+    return this.sanitizer.bypassSecurityTrustHtml(JSON.stringify(schema));
+  });
+
   ngOnInit(): void {
     this.sub.add(
       combineLatest([
         this.competencyService.map$,
-        this.competencyService.progress$
-      ]).subscribe(([map, progress]) => {
+        this.competencyService.progress$,
+        this.route.paramMap
+      ]).subscribe(([map, progress, params]) => {
         this.progress.set(progress);
-        this.renderChart(map, progress);
+        const id = params.get('id');
+        this.renderChart(map, progress, id);
       })
     );
   }
@@ -353,7 +478,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.renderChart(map, progress);
   }
 
-  private renderChart(data: Competency, progress: Set<string>): void {
+  private renderChart(data: Competency, progress: Set<string>, initialId: string | null = null): void {
     const container = this.chartRef.nativeElement;
     container.innerHTML = '';
 
@@ -427,7 +552,9 @@ export class MapComponent implements OnInit, OnDestroy {
           event.stopPropagation();
           this.selected.set(d.data);
         }
-      });
+      })
+      .attr('role', 'link')
+      .attr('aria-label', d => `Competência: ${(d.data as Competency).name}. ${(d.data as Competency).description}`);
 
     // Círculos
     const circles = node.append('circle')
@@ -496,7 +623,18 @@ export class MapComponent implements OnInit, OnDestroy {
       .call(textHalo);
 
     // Inicializar visualização
-    zoomTo([packed.x, packed.y, packed.r * 1.05]);
+    if (initialId) {
+      const target = packed.descendants().find(d => (d.data as Competency).id === initialId);
+      if (target) {
+        focus = target;
+        this.selected.set(target.data);
+        zoomTo([target.x, target.y, target.r * 1.05]);
+      } else {
+        zoomTo([packed.x, packed.y, packed.r * 1.05]);
+      }
+    } else {
+      zoomTo([packed.x, packed.y, packed.r * 1.05]);
+    }
 
     function zoomTo(v: [number, number, number]) {
       const k = width / (v[2] * 2);
