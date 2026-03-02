@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, signal, effect, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -144,6 +144,16 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
 
+  constructor() {
+    effect(() => {
+      if (this.auth.isLoggedIn()) {
+        untracked(() => {
+          this.router.navigate(['/']);
+        });
+      }
+    });
+  }
+
   loading = signal(false);
   error = signal('');
 
@@ -152,7 +162,6 @@ export class LoginComponent {
     this.error.set('');
     try {
       await this.auth.loginWithGoogle();
-      this.router.navigate(['/dashboard']);
     } catch (err: any) {
       this.error.set('Erro ao fazer login. Tente novamente.');
     } finally {
