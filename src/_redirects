@@ -1,2 +1,0 @@
-# SPA Rule: Redirect all requests to index.html unless the file exists
-/* /index.html 200
