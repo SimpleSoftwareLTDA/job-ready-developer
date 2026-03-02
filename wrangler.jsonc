@@ -1,0 +1,12 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "job-ready-developer",
+    "compatibility_date": "2024-11-01",
+    "assets": {
+        "directory": "dist/job-ready-developer/browser",
+        "binding": "ASSETS"
+    },
+    "compatibility_flags": [
+        "nodejs_compat"
+    ]
+}
