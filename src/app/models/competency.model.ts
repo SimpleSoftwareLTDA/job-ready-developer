@@ -209,3 +209,58 @@ export const DEFAULT_COMPETENCY_MAP: Competency = {
     }
   ]
 };
+
+export function add_new_area(
+  name: string,
+  description: string,
+  color: string,
+  icon: string,
+  node: Competency
+): void {
+  if (!node.children) node.children = [];
+  const newCompetency: Competency = {
+    id: 'area_' + Date.now(),
+    name,
+    description,
+    color,
+    icon,
+    resources: [],
+    children: []
+  };
+  node.children.push(newCompetency);
+}
+
+export function remove_area(competencyId: string, node: Competency): boolean {
+  if (!node.children) return false;
+  const index = node.children.findIndex(c => c.id === competencyId);
+  if (index !== -1) {
+    node.children.splice(index, 1);
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
+export function add_new_Resource(
+  title: string,
+  url: string,
+  type: 'video' | 'article' | 'course' | 'docs',
+  language: 'pt' | 'en',
+  node: Competency
+): void {
+  if (!node.resources) node.resources = [];
+  const newResource: Resource = {
+    title,
+    url,
+    type,
+    language
+  };
+  node.resources.push(newResource);
+}
+
+export function remove_resource(resourceId: string, nodeId: string): void {
+  if (!DEFAULT_COMPETENCY_MAP.children) return ;
+  const node = DEFAULT_COMPETENCY_MAP.children.find(child => child.id === nodeId);
+  node?.children?.filter(child => child.id === nodeId);
+}
