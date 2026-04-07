@@ -13,7 +13,7 @@ import { Subscription } from "rxjs";
 import { CompetencyService } from "../../services/competency.service";
 import { Competency, Resource } from "../../models/competency.model";
 import { add_new_area } from "../../models/competency.model";
-import { doc } from "firebase/firestore";
+
 @Component({
   selector: "app-admin",
   standalone: true,
@@ -35,9 +35,9 @@ import { doc } from "firebase/firestore";
       </div>
 
       @if (saved()) {
-        <div class="toast success">
-          ✅ Mapa salvo com sucesso! Todos os alunos já verão as mudanças.
-        </div>
+      <div class="toast success">
+        ✅ Mapa salvo com sucesso! Todos os alunos já verão as mudanças.
+      </div>
       }
 
       <!-- Árvore de competências -->
@@ -46,23 +46,32 @@ import { doc } from "firebase/firestore";
         <nav class="tree-nav">
           <div class="nav-title">Áreas</div>
           @for (area of areas(); track area.id) {
-            <button
-              class="nav-item"
-              [class.active]="selectedArea()?.id === area.id"
-              [style.border-left-color]="area.color"
-              (click)="selectArea(area)"
-            >
-              {{ area.icon }} {{ area.name }}
-            </button>
+          <button
+            class="nav-item"
+            [class.active]="selectedArea()?.id === area.id"
+            [style.border-left-color]="area.color"
+            (click)="selectArea(area)"
+          >
+            {{ area.icon }} {{ area.name }}
+          </button>
           }
-          <button class="add-item" id="abrir-modal-admin">
+          <button
+            (click)="openAddAreaModal()"
+            class="add-item"
+            id="abrir-modal-admin"
+          >
             + Adicionar Área
           </button>
 
           <!-- Modal de adicionar área na tela admin -->
           <div>
-            <div id="modal_admin" class="modal_admin">
-              <div id="modal_content_admin">
+            <div
+              id="modal_admin"
+              class="modal_admin"
+              *ngIf="isAddAreaModalVisible"
+              (click)="closeAddAreaModal()"
+            >
+              <div id="modal_content_admin" (click)="$event.stopPropagation()">
                 <h2>Adicionar Nova Área</h2>
                 <div class="campo">
                   <label for="area-name">Nome:</label>
@@ -78,7 +87,7 @@ import { doc } from "firebase/firestore";
                   <input
                     id="area-desc"
                     type="text"
-                    placeholder="Brevecd descrição da área"
+                    placeholder="Breve descrição da área"
                     [(ngModel)]="areaDescription"
                   />
                 </div>
@@ -110,16 +119,26 @@ import { doc } from "firebase/firestore";
                 </button>
               </div>
             </div>
-            <button class="add-item" id="remover-id-admin">
+            <button
+              (click)="openRemoveAreaModal()"
+              class="add-item"
+              id="remover-id-admin"
+            >
               ❌ Remover Área
             </button>
           </div>
 
           <!-- modal de remover item-->
-          <div class="modal_dropdown" id="modal_dropdown_remove">
+          <div
+            class="modal_dropdown"
+            id="modal_dropdown_remove"
+            *ngIf="isRemoveAreaModalVisible"
+            (click)="closeRemoveAreaModal()"
+          >
             <div
               class="modal_content_dropdown"
               id="modal_content_dropdown_remove"
+              (click)="$event.stopPropagation()"
             >
               <h3>Deletar área</h3>
               <div class="dropdown">
@@ -129,28 +148,31 @@ import { doc } from "firebase/firestore";
                   class="dropbtn"
                 >
                   @if (selectedAreaToRemove()) {
-                    {{ selectedAreaToRemove()!.icon }}
-                    {{ selectedAreaToRemove()!.name }}
-                  } @else {
-                    Dropdown
-                  }
+                  {{ selectedAreaToRemove()!.icon }}
+                  {{ selectedAreaToRemove()!.name }}
+                  } @else { Dropdown }
                 </button>
-                <div id="myDropdown" class="dropdown-content">
+                <div
+                  id="myDropdown"
+                  class="dropdown-content"
+                  [ngClass]="{ show: isDropdownOpen }"
+                >
                   @for (area of areas(); track area.id) {
-                    <button
-                      class="remove-item-dropdown"
-                      [class.active]="selectedAreaToRemove()?.id === area.id"
-                      [style.border-left-color]="area.color"
-                      (click)="selectAreaToRemove(area)"
-                      type="button"
-                    >
-                      {{ area.icon }} {{ area.name }}
-                    </button>
+                  <button
+                    class="remove-item-dropdown"
+                    [class.active]="selectedAreaToRemove()?.id === area.id"
+                    [style.border-left-color]="area.color"
+                    (click)="selectAreaToRemove(area)"
+                    type="button"
+                  >
+                    {{ area.icon }} {{ area.name }}
+                  </button>
                   }
                 </div>
                 <button
                   class="btn-remove-area"
                   (click)="removeArea(selectedAreaToRemove()!)"
+                  [disabled]="!selectedAreaToRemove()"
                 >
                   Remover Área
                 </button>
@@ -161,71 +183,176 @@ import { doc } from "firebase/firestore";
 
         <!-- Editor direito -->
         @if (selectedArea()) {
-          <div class="editor-panel">
-            <h2>{{ selectedArea()!.icon }} {{ selectedArea()!.name }}</h2>
+        <div class="editor-panel">
+          <h2>{{ selectedArea()!.icon }} {{ selectedArea()!.name }}</h2>
 
-            <!-- Todos os nós da área -->
-            @for (node of getNodesForArea(selectedArea()!); track node.id) {
-              <div class="node-section">
-                <div class="node-title">
-                  <span>{{ node.icon }} {{ node.name }}</span>
-                  <span class="node-badge"
-                    >{{ node.resources.length }} recursos</span
-                  >
-                </div>
+          <!-- Todos os nós da área -->
+          @for (node of getNodesForArea(selectedArea()!); track node.id) {
+          <div class="node-section">
+            <div class="node-title">
+              <span>{{ node.icon }} {{ node.name }}</span>
+              <span class="node-badge"
+                >{{ node.resources.length }} recursos</span
+              >
+            </div>
 
-                <p class="node-desc">{{ node.description }}</p>
+            <p class="node-desc">{{ node.description }}</p>
 
-                <!-- Lista de recursos -->
-                <div class="resources-editor">
-                  @for (res of node.resources; track $index; let i = $index) {
-                    <div class="res-row">
-                      <select [(ngModel)]="res.type" class="res-type-select">
-                        <option value="video">▶ Vídeo</option>
-                        <option value="course">🎓 Curso</option>
-                        <option value="article">📄 Artigo</option>
-                        <option value="docs">📖 Docs</option>
-                      </select>
-                      <select
-                        [(ngModel)]="res.language"
-                        class="res-lang-select"
-                      >
-                        <option value="pt">PT</option>
-                        <option value="en">EN</option>
-                      </select>
-                      <input
-                        [(ngModel)]="res.title"
-                        placeholder="Título do recurso"
-                        class="res-input"
-                      />
-                      <input
-                        [(ngModel)]="res.url"
-                        placeholder="https://..."
-                        class="res-input url-input"
-                      />
-                      <button
-                        class="btn-remove"
-                        (click)="removeResource(node, i)"
-                        title="Remover"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  }
-
-                  <!-- Novo recurso -->
-                  <button class="btn-add-resource" (click)="addResource(node)">
-                    + Adicionar Recurso
-                  </button>
-                </div>
+            <!-- Lista de recursos -->
+            <div class="resources-editor">
+              @for (res of node.resources; track $index; let i = $index) {
+              <div class="res-row">
+                <select [(ngModel)]="res.type" class="res-type-select">
+                  <option value="video">▶ Vídeo</option>
+                  <option value="course">🎓 Curso</option>
+                  <option value="article">📄 Artigo</option>
+                  <option value="docs">📖 Docs</option>
+                </select>
+                <select [(ngModel)]="res.language" class="res-lang-select">
+                  <option value="pt">PT</option>
+                  <option value="en">EN</option>
+                </select>
+                <input
+                  [(ngModel)]="res.title"
+                  placeholder="Título do recurso"
+                  class="res-input"
+                />
+                <input
+                  [(ngModel)]="res.url"
+                  placeholder="https://..."
+                  class="res-input url-input"
+                />
+                <button
+                  class="btn-remove"
+                  (click)="removeResource(node, i)"
+                  title="Remover"
+                >
+                  ✕
+                </button>
               </div>
-            }
+              }
+
+              <!-- Novo recurso -->
+              <button class="btn-add-resource" (click)="addResource(node)">
+                + Adicionar Recurso
+              </button>
+            </div>
+            
           </div>
+          }
+          
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="btn-add-item" style="flex: 1; border-style: dashed; padding: 1rem; border-color: var(--border); background: transparent; color: var(--text-secondary); border-radius: 8px; cursor: pointer;" (click)="openAddSegmentModal(selectedArea()!)">
+                + Adicionar Segmento
+            </button>
+            <button class="btn-add-item" style="flex: 1; border-style: dashed; padding: 1rem; border-color: var(--border); background: transparent; color: #ef4444; border-radius: 8px; cursor: pointer;" (click)="openRemoveSegmentModal()">
+                ❌ Remover Segmento
+            </button>
+          </div>
+          
+          <!-- Modal de adicionar segmento -->
+          <div
+            id="modal_segment"
+            class="modal_admin"
+            *ngIf="isAddSegmentModalVisible"
+            (click)="closeAddSegmentModal()"
+          >
+            <div id="modal_content_segment" (click)="$event.stopPropagation()">
+              <h2>Adicionar Novo Segmento</h2>
+              <div class="campo">
+                <label for="segment-name">Nome:</label>
+                <input
+                  id="segment-name"
+                  type="text"
+                  placeholder="Ex: Spring Security"
+                  [(ngModel)]="segmentName"
+                />
+              </div>
+              <div class="campo">
+                <label for="segment-desc">Descrição:</label>
+                <input
+                  id="segment-desc"
+                  type="text"
+                  placeholder="Breve descrição do segmento"
+                  [(ngModel)]="segmentDescription"
+                />
+              </div>
+              <div class="campo">
+                <label for="segment-icon">Ícone (Emoji):</label>
+                <input
+                  id="segment-icon"
+                  type="text"
+                  placeholder="Ex: 🚀"
+                  [(ngModel)]="segmentIcon"
+                />
+              </div>
+              <button
+                class="btn-save"
+                (click)="addSegment()"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal de remover segmento -->
+          <div
+            class="modal_dropdown"
+            *ngIf="isRemoveSegmentModalVisible"
+            (click)="closeRemoveSegmentModal()"
+          >
+            <div
+              class="modal_content_dropdown"
+              (click)="$event.stopPropagation()"
+            >
+              <h3>Deletar segmento</h3>
+              <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">Selecione um segmento da área "{{ selectedArea()?.name }}" para remover:</p>
+              <div class="dropdown">
+                <button
+                  (click)="toggleSegmentDropdown()"
+                  class="dropbtn"
+                  style="width: fit-content; min-width: 150px; border-radius: 8px; border: 1px solid var(--border); text-align: center;"
+                >
+                  @if (selectedSegmentToRemove()) {
+                    {{ selectedSegmentToRemove()!.icon }} {{ selectedSegmentToRemove()!.name }}
+                  } @else { Selecione... }
+                </button>
+                <div
+                  class="dropdown-content"
+                  style="min-width: 150px; max-height: 200px; overflow-y: auto;"
+                  [ngClass]="{ show: isSegmentDropdownOpen }"
+                >
+                  @for (node of getNodesForArea(selectedArea()!); track node) {
+                    @if (node.id !== selectedArea()?.id) {
+                      <button
+                        class="remove-item-dropdown"
+                        [class.active]="selectedSegmentToRemove() === node"
+                        (click)="$event.stopPropagation(); selectSegmentToRemove(node)"
+                        type="button"
+                      >
+                        {{ node.icon }} {{ node.name }}
+                      </button>
+                    }
+                  }
+                </div>
+                <button
+                  class="btn-remove-area"
+                  (click)="removeSegment(selectedSegmentToRemove()!)"
+                  [disabled]="!selectedSegmentToRemove()"
+                  style="width: fit-content;"
+                >
+                  Remover Segmento
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
         } @else {
-          <div class="editor-placeholder">
-            <span>👈</span>
-            <p>Selecione uma área para editar seus recursos</p>
-          </div>
+        <div class="editor-placeholder">
+          <span>👈</span>
+          <p>Selecione uma área para editar seus recursos</p>
+        </div>
         }
       </div>
     </div>
@@ -512,7 +639,7 @@ import { doc } from "firebase/firestore";
       }
 
       .modal_admin {
-        display: none;
+        display: flex;
         position: fixed;
         top: 0;
         left: 0;
@@ -524,7 +651,8 @@ import { doc } from "firebase/firestore";
         align-items: center;
       }
 
-      #modal_content_admin {
+      #modal_content_admin,
+      #modal_content_segment {
         display: flex;
         width: 500px;
         gap: 15px;
@@ -578,10 +706,8 @@ import { doc } from "firebase/firestore";
         z-index: 1;
       }
 
-      
-
       .dropdown-content button {
-        color: var(--text-primary); 
+        color: var(--text-primary);
         padding: 0.6rem 1rem;
         text-decoration: none;
         display: block;
@@ -611,7 +737,7 @@ import { doc } from "firebase/firestore";
       }
 
       .modal_dropdown {
-        display: none;
+        display: flex;
         position: fixed;
         top: 0;
         left: 0;
@@ -696,95 +822,185 @@ export class AdminComponent implements OnInit, OnDestroy {
         // Refresh selected area reference
         if (this.selectedArea()) {
           const updated = (map.children ?? []).find(
-            (a) => a.id === this.selectedArea()!.id,
+            (a) => a.id === this.selectedArea()!.id
           );
           if (updated) this.selectedArea.set(updated);
         }
-      }),
+      })
     );
+  }
 
-    const dropbtn = document.getElementById("dropbtn");
-    const botao_remover = document.getElementById("remover-id-admin");
-    const modal_dropdown = document.getElementById("modal_dropdown_remove");
-    botao_remover?.addEventListener("click", () => {
-      if (modal_dropdown !== null) {
-        modal_dropdown.style.display = "flex";
+  isAddAreaModalVisible = false;
+  isRemoveAreaModalVisible = false;
+  isDropdownOpen = false;
+
+  openAddAreaModal() {
+    this.isAddAreaModalVisible = true;
+  }
+  closeAddAreaModal() {
+    this.isAddAreaModalVisible = false;
+  }
+
+  openRemoveAreaModal() {
+    this.isRemoveAreaModalVisible = true;
+  }
+  closeRemoveAreaModal() {
+    this.isRemoveAreaModalVisible = false;
+  }
+
+  isAddSegmentModalVisible = false;
+  isRemoveSegmentModalVisible = false;
+  isSegmentDropdownOpen = false;
+  segmentName = "";
+  segmentDescription = "";
+  segmentIcon = "";
+  selectedNodeForSegment: Competency | null = null;
+  selectedSegmentToRemove = signal<Competency | null>(null);
+
+  openAddSegmentModal(node: Competency) {
+    this.selectedNodeForSegment = node;
+    this.segmentIcon = node.icon; 
+    this.isAddSegmentModalVisible = true;
+  }
+
+  closeAddSegmentModal() {
+    this.isAddSegmentModalVisible = false;
+    this.selectedNodeForSegment = null;
+    this.segmentName = "";
+    this.segmentDescription = "";
+    this.segmentIcon = "";
+  }
+
+  openRemoveSegmentModal() {
+    this.isRemoveSegmentModalVisible = true;
+    this.selectedSegmentToRemove.set(null);
+    this.isSegmentDropdownOpen = false;
+  }
+
+  closeRemoveSegmentModal() {
+    this.isRemoveSegmentModalVisible = false;
+    this.selectedSegmentToRemove.set(null);
+    this.isSegmentDropdownOpen = false;
+  }
+
+  toggleSegmentDropdown() {
+    this.isSegmentDropdownOpen = !this.isSegmentDropdownOpen;
+  }
+
+  selectSegmentToRemove(segment: Competency) {
+    this.selectedSegmentToRemove.set(segment);
+    this.isSegmentDropdownOpen = false;
+  }
+
+  removeSegment(segment: Competency) {
+    if (!this.mapRef || !segment) return;
+    
+    // Alerta: Não permitimos remover o root ou a área selecionada por este botão
+    if (segment.id === 'root' || (this.selectedArea() && segment.id === this.selectedArea()?.id)) {
+      this.closeRemoveSegmentModal();
+      return;
+    }
+
+    // Função recursiva para encontrar o pai e remover o filho usando splice
+    const removeRecursive = (root: Competency, target: Competency): boolean => {
+      if (!root.children) return false;
+      
+      const index = root.children.findIndex(c => 
+        c === target || (target.id && c.id === target.id)
+      );
+      
+      if (index !== -1) {
+        root.children.splice(index, 1);
+        return true;
       }
-    });
-
-    const modal = document.getElementById("modal_admin");
-    const abrirModal = document.getElementById("abrir-modal-admin");
-    const fecharModal = document.getElementById("salvar-modal-admin");
-    const conteudo = document.getElementById("modal_content_admin");
-
-    abrirModal?.addEventListener("click", () => {
-      if (modal !== null) {
-        modal.style.display = "flex";
+      
+      for (const child of root.children) {
+        if (removeRecursive(child, target)) return true;
       }
-    });
+      return false;
+    };
 
-    modal?.addEventListener("click", (event) => {
-      modal.style.display = "none";
-    });
-
-    conteudo?.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-
-    fecharModal?.addEventListener("click", () => {
-      if (modal !== null) {
-        modal?.classList.add("inactive");
-        modal.style.display = "none";
-        modal?.classList.remove("active");
+    if (removeRecursive(this.mapRef, segment)) {
+      this.areas.set([...(this.mapRef.children ?? [])]);
+      
+      if (this.selectedArea()) {
+        const updatedArea = this.findNodeInMap(this.mapRef, this.selectedArea()!.id);
+        if (updatedArea) {
+          this.selectedArea.set({ ...updatedArea });
+        } else {
+          this.selectedArea.set(null);
+        }
       }
-    });
+    }
+    
+    this.closeRemoveSegmentModal();
+  }
 
-    const modalDropdown = document.getElementById("modal_dropdown_remove");
-    const modalDropdownContent = document.getElementById(
-      "modal_content_dropdown_remove",
-    );
-
-    modalDropdown?.addEventListener("click", (event) => {
-      if (event.target === modalDropdown) {
-        modalDropdown.style.display = "none";
+  private findNodeInMap(root: Competency, id: string): Competency | null {
+    if (root.id === id) return root;
+    if (root.children) {
+      for (const child of root.children) {
+        const found = this.findNodeInMap(child, id);
+        if (found) return found;
       }
-    });
-    modalDropdownContent?.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
+    }
+    return null;
+  }
+
+  addSegment(): void {
+    const areaRef = this.selectedArea();
+    if (!this.segmentName?.trim() || !this.mapRef || !areaRef) {
+      return;
+    }
+    
+    const targetNode = this.findNodeInMap(this.mapRef, areaRef.id);
+    if (targetNode) {
+      if (!targetNode.children) targetNode.children = [];
+      
+      targetNode.children.push({
+        id: "seg_" + Date.now(),
+        name: this.segmentName,
+        description: this.segmentDescription,
+        color: targetNode.color,
+        icon: this.segmentIcon || targetNode.icon,
+        resources: [],
+        children: [],
+      });
+
+      this.selectedArea.set({ ...targetNode });
+      this.areas.set([...(this.mapRef.children ?? [])]);
+    }
+    
+    this.closeAddSegmentModal();
   }
 
   dropdown_active() {
-    const myDropdown = document.getElementById("myDropdown");
-
-    if (myDropdown !== null) {
-      myDropdown.classList.toggle("show");
-    }
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 
-  dropdown_inactive() {
-    const myDropdown = document.getElementById("myDropdown");
-    const modalDropdown = document.getElementsByClassName(
-      "remove-item-dropdown",
-    );
-
-    modalDropdown[0].addEventListener("click", () => {
-      if (myDropdown !== null) {
-        myDropdown.classList.remove("show");
-      }
-    });
+  closeDropdown() {
+    this.isDropdownOpen = false;
   }
 
   addArea(
     name: string,
     description: string,
     color: string,
-    icon: string,
+    icon: string
   ): void {
+    if (!name?.trim()) {
+      return;
+    }
     if (this.mapRef) {
       add_new_area(name, description, color, icon, this.mapRef);
       this.areas.set(this.mapRef.children ?? []);
+      this.areaName = "";
+      this.areaDescription = "";
+      this.areaColor = "#123456";
+      this.areaIcon = "";
+      this.closeAddAreaModal();
     }
+    
   }
 
   selectedAreaToRemove = signal<Competency | null>(null);
@@ -792,17 +1008,15 @@ export class AdminComponent implements OnInit, OnDestroy {
   removeArea(area: Competency): void {
     if (!this.mapRef) return;
     this.mapRef.children = (this.mapRef.children ?? []).filter(
-      (a) => a.id !== area.id,
+      (a) => a.id !== area.id
     );
     this.areas.set(this.mapRef.children);
+    this.closeRemoveAreaModal();
   }
 
   selectAreaToRemove(area: Competency): void {
     this.selectedAreaToRemove.set(area);
-    const myDropdown = document.getElementById("myDropdown");
-    if (myDropdown) {
-      myDropdown.classList.remove("show");
-    }
+    this.closeDropdown();
   }
 
   ngOnDestroy(): void {
